@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("Instant Untie", "MJSU", "1.0.2")]
+    [Info("Instant Untie", "MJSU", "1.0.3")]
     [Description("Instantly untie underwater boxes")]
     internal class InstantUntie : RustPlugin
     {
@@ -85,6 +85,103 @@ namespace Oxide.Plugins
         }
         #endregion
 
+        #region uMod Hooks
+        private void OnUserPermissionGranted(string playerId, string permName)
+        {
+            if (permName != UsePermission)
+            {
+                return;
+            }
+            
+            HandleUserChanges(playerId);
+        }
+        
+        private void OnUserPermissionRevoked(string playerId, string permName)
+        {
+            if (permName != UsePermission)
+            {
+                return;
+            }
+            
+            HandleUserChanges(playerId);
+        }
+        
+        private void OnUserGroupAdded(string playerId, string groupName)
+        {
+            HandleUserChanges(playerId);
+        }
+        
+        private void OnUserGroupRemoved(string playerId, string groupName)
+        {
+            HandleUserChanges(playerId);
+        }
+
+        private void OnGroupPermissionGranted(string groupName, string permName)
+        {
+            if (permName != UsePermission)
+            {
+                return;
+            }
+
+            NextTick(() =>
+            {
+                foreach (BasePlayer player in BasePlayer.activePlayerList)
+                {
+                    HandleUserChanges(player);
+                }
+            });
+        }
+        
+        private void OnGroupPermissionRevoked(string groupName, string permName)
+        {
+            if (permName != UsePermission)
+            {
+                return;
+            }
+            
+            NextTick(() =>
+            {
+                foreach (BasePlayer player in BasePlayer.activePlayerList)
+                {
+                    HandleUserChanges(player);
+                }
+            });
+        }
+
+        private void HandleUserChanges(string id)
+        {
+            NextTick(() =>
+            {
+                BasePlayer player = BasePlayer.Find(id);
+                if (player == null)
+                {
+                    return;
+                }
+
+                HandleUserChanges(player);
+            });
+        }
+
+        private void HandleUserChanges(BasePlayer player)
+        {
+            bool hasPerm = HasPermission(player, UsePermission);
+            bool hasBehavior = player.GetComponent<UnderwaterBehavior>() != null;
+            if (hasPerm == hasBehavior)
+            {
+                return;
+            }
+
+            if (hasBehavior)
+            {
+                DestroyBehavior(player);
+            }
+            else
+            {
+                AddBehavior(player);
+            }
+        }
+        #endregion
+
         #region Helper Methods
         private T Raycast<T>(Ray ray, float distance) where T : BaseEntity
         {
@@ -118,7 +215,7 @@ namespace Oxide.Plugins
         private void Chat(BasePlayer player, string format) => PrintToChat(player, Lang(LangKeys.Chat, player, format));
         
         private bool HasPermission(BasePlayer player, string perm) => permission.UserHasPermission(player.UserIDString, perm);
-        
+
         private string Lang(string key, BasePlayer player = null, params object[] args)
         {
             try
