@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("Instant Untie", "MJSU", "1.0.8")]
+    [Info("Instant Untie", "MJSU", "1.0.9")]
     [Description("Instantly untie underwater boxes")]
     internal class InstantUntie : RustPlugin
     {
@@ -259,36 +259,36 @@ namespace Oxide.Plugins
 
             private void FixedUpdate()
             {
-                if (Box == null && NextRaycastTime < Time.realtimeSinceStartup && Player.serverInput.IsDown(BUTTON.USE))
-                {
-                    Box = _ins.Raycast<FreeableLootContainer>(Player.eyes.HeadRay(), 3f);
-                    if (Box == null || !Box.IsTiedDown())
-                    {
-                        return;
-                    }
-
-                    NextRaycastTime = Time.realtimeSinceStartup + 1f;
-                    CancelInvoke(Untie);
-                    Invoke(Untie, _ins._pluginConfig.UntieDuration);
-                    if (_ins._pluginConfig.ShowUntieMessage)
-                    {
-                        _ins.Chat(Player, _ins.Lang(LangKeys.Untie, Player, _ins._pluginConfig.UntieDuration));
-                    }
-                }
-
                 if (Box == null)
                 {
-                    return;
-                }
-
-                if (!Player.serverInput.IsDown(BUTTON.USE))
-                {
-                    Box = null;
-                    CancelInvoke(Untie);
-
-                    if (_ins._pluginConfig.ShowCanceledMessage)
+                    if (NextRaycastTime < Time.realtimeSinceStartup && Player.serverInput.IsDown(BUTTON.USE))
                     {
-                        _ins.Chat(Player, _ins.Lang(LangKeys.Canceled));
+                        Box = _ins.Raycast<FreeableLootContainer>(Player.eyes.HeadRay(), 3f);
+                        if (Box == null || !Box.IsTiedDown())
+                        {
+                            return;
+                        }
+
+                        NextRaycastTime = Time.realtimeSinceStartup + _ins._pluginConfig.HeldKeyUpdateRate;
+                        CancelInvoke(Untie);
+                        Invoke(Untie, _ins._pluginConfig.UntieDuration);
+                        if (_ins._pluginConfig.ShowUntieMessage)
+                        {
+                            _ins.Chat(Player, _ins.Lang(LangKeys.Untie, Player, _ins._pluginConfig.UntieDuration));
+                        }
+                    }
+                }
+                else
+                {
+                    if (!Player.serverInput.IsDown(BUTTON.USE))
+                    {
+                        Box = null;
+                        CancelInvoke(Untie);
+
+                        if (_ins._pluginConfig.ShowCanceledMessage)
+                        {
+                            _ins.Chat(Player, _ins.Lang(LangKeys.Canceled));
+                        }
                     }
                 }
             }
@@ -343,6 +343,10 @@ namespace Oxide.Plugins
             [DefaultValue(5f)]
             [JsonProperty(PropertyName = "How often to check if player is underwater (Seconds)")]
             public float UnderWaterUpdateRate { get; set; }
+            
+            [DefaultValue(1f)]
+            [JsonProperty(PropertyName = "How often to check if a player is holding the use button")]
+            public float HeldKeyUpdateRate { get; set; }
             
             [DefaultValue(true)]
             [JsonProperty(PropertyName = "Show Untie Message")]
