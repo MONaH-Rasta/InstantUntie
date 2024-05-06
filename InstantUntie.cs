@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("Instant Untie", "MJSU", "1.0.6")]
+    [Info("Instant Untie", "MJSU", "1.0.8")]
     [Description("Instantly untie underwater boxes")]
     internal class InstantUntie : RustPlugin
     {
@@ -305,9 +305,9 @@ namespace Oxide.Plugins
                     return;
                 }
                 
+                Box.buoyancy.buoyancyScale = _ins._pluginConfig.BuoyancyScale;
                 Box.GetRB().isKinematic = false;
                 Box.buoyancy.enabled = true;
-                Box.buoyancy.buoyancyScale = 1f;
                 Box.SetFlag(BaseEntity.Flags.Reserved8, false);
                 Box.SendNetworkUpdate();
                 if (Box.freedEffect.isValid)
@@ -351,6 +351,10 @@ namespace Oxide.Plugins
             [DefaultValue(true)]
             [JsonProperty(PropertyName = "Show canceled message")]
             public bool ShowCanceledMessage { get; set; }
+            
+            [DefaultValue(1)]
+            [JsonProperty(PropertyName = "Buoyancy Scale")]
+            public float BuoyancyScale { get; set; }
         }
         #endregion
     }
