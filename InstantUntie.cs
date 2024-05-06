@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("Instant Untie", "MJSU", "1.0.4")]
+    [Info("Instant Untie", "MJSU", "1.0.5")]
     [Description("Instantly untie underwater boxes")]
     internal class InstantUntie : RustPlugin
     {
@@ -270,7 +270,10 @@ namespace Oxide.Plugins
                     NextRaycastTime = Time.realtimeSinceStartup + 1f;
                     CancelInvoke(Untie);
                     Invoke(Untie, _ins._pluginConfig.UntieDuration);
-                    _ins.Chat(Player, _ins.Lang(LangKeys.Untie, Player, _ins._pluginConfig.UntieDuration));
+                    if (_ins._pluginConfig.ShowUntieMessage)
+                    {
+                        _ins.Chat(Player, _ins.Lang(LangKeys.Untie, Player, _ins._pluginConfig.UntieDuration));
+                    }
                 }
 
                 if (Box == null)
@@ -336,6 +339,10 @@ namespace Oxide.Plugins
             [DefaultValue(5f)]
             [JsonProperty(PropertyName = "How often to check if player is underwater (Seconds)")]
             public float UnderWaterUpdateRate { get; set; }
+            
+            [DefaultValue(true)]
+            [JsonProperty(PropertyName = "Show Untie Message")]
+            public bool ShowUntieMessage { get; set; }
         }
         #endregion
     }
