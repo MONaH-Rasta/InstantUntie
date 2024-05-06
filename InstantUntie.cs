@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("Instant Untie", "MJSU", "1.0.10")]
+    [Info("Instant Untie", "MJSU", "1.0.11")]
     [Description("Instantly untie underwater boxes")]
     internal class InstantUntie : RustPlugin
     {
@@ -310,6 +310,10 @@ namespace Oxide.Plugins
                 Box.buoyancy.enabled = true;
                 Box.SetFlag(BaseEntity.Flags.Reserved8, false);
                 Box.SendNetworkUpdate();
+                if (_ins._pluginConfig.SetOwnerId)
+                {
+                    Box.OwnerID = Player.userID;
+                }
                 if (Box.freedEffect.isValid)
                 {
                     Effect.server.Run(Box.freedEffect.resourcePath, Box.transform.position, Vector3.up);
@@ -359,6 +363,10 @@ namespace Oxide.Plugins
             [DefaultValue(1)]
             [JsonProperty(PropertyName = "Buoyancy Scale")]
             public float BuoyancyScale { get; set; }
+            
+            [DefaultValue(false)]
+            [JsonProperty(PropertyName = "Set box owner as untie player")]
+            public bool SetOwnerId { get; set; }
         }
         #endregion
     }
