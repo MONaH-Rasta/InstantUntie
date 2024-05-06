@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("Instant Untie", "MJSU", "1.0.3")]
+    [Info("Instant Untie", "MJSU", "1.0.4")]
     [Description("Instantly untie underwater boxes")]
     internal class InstantUntie : RustPlugin
     {
@@ -64,7 +64,7 @@ namespace Oxide.Plugins
             }
         }
 
-        private void OnPlayerInit(BasePlayer player)
+        private void OnPlayerConnected(BasePlayer player)
         {
             AddBehavior(player);
         }
