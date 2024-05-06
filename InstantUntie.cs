@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("Instant Untie", "MJSU", "1.0.9")]
+    [Info("Instant Untie", "MJSU", "1.0.10")]
     [Description("Instantly untie underwater boxes")]
     internal class InstantUntie : RustPlugin
     {
@@ -345,7 +345,7 @@ namespace Oxide.Plugins
             public float UnderWaterUpdateRate { get; set; }
             
             [DefaultValue(1f)]
-            [JsonProperty(PropertyName = "How often to check if a player is holding the use button")]
+            [JsonProperty(PropertyName = "How often to check if a player is holding the use button (Seconds)")]
             public float HeldKeyUpdateRate { get; set; }
             
             [DefaultValue(true)]
