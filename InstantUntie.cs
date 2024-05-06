@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("Instant Untie", "MJSU", "1.0.11")]
+    [Info("Instant Untie", "MJSU", "1.0.12")]
     [Description("Instantly untie underwater boxes")]
     internal class InstantUntie : RustPlugin
     {
@@ -278,33 +278,25 @@ namespace Oxide.Plugins
                         }
                     }
                 }
-                else
+                else if (!Player.serverInput.IsDown(BUTTON.USE))
                 {
-                    if (!Player.serverInput.IsDown(BUTTON.USE))
-                    {
-                        Box = null;
-                        CancelInvoke(Untie);
+                    Box = null;
+                    CancelInvoke(Untie);
 
-                        if (_ins._pluginConfig.ShowCanceledMessage)
-                        {
-                            _ins.Chat(Player, _ins.Lang(LangKeys.Canceled));
-                        }
+                    if (_ins._pluginConfig.ShowCanceledMessage)
+                    {
+                        _ins.Chat(Player, _ins.Lang(LangKeys.Canceled));
                     }
                 }
             }
 
             private void Untie()
             {
-                if (Box == null)
+                if (Box == null || !Box.IsTiedDown())
                 {
                     return;
                 }
-                
-                if (!Box.IsTiedDown())
-                {
-                    return;
-                }
-                
+
                 Box.buoyancy.buoyancyScale = _ins._pluginConfig.BuoyancyScale;
                 Box.GetRB().isKinematic = false;
                 Box.buoyancy.enabled = true;
@@ -319,6 +311,8 @@ namespace Oxide.Plugins
                     Effect.server.Run(Box.freedEffect.resourcePath, Box.transform.position, Vector3.up);
                 }
 
+                Player.ProcessMissionEvent(BaseMission.MissionEventType.FREE_CRATE, "", 1f);
+                
                 Box = null;
             }
 
