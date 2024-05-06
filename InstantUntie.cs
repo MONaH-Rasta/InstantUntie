@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("Instant Untie", "MJSU", "1.0.5")]
+    [Info("Instant Untie", "MJSU", "1.0.6")]
     [Description("Instantly untie underwater boxes")]
     internal class InstantUntie : RustPlugin
     {
@@ -285,7 +285,11 @@ namespace Oxide.Plugins
                 {
                     Box = null;
                     CancelInvoke(Untie);
-                    _ins.Chat(Player, _ins.Lang(LangKeys.Canceled));
+
+                    if (_ins._pluginConfig.ShowCanceledMessage)
+                    {
+                        _ins.Chat(Player, _ins.Lang(LangKeys.Canceled));
+                    }
                 }
             }
 
@@ -343,6 +347,10 @@ namespace Oxide.Plugins
             [DefaultValue(true)]
             [JsonProperty(PropertyName = "Show Untie Message")]
             public bool ShowUntieMessage { get; set; }
+            
+            [DefaultValue(true)]
+            [JsonProperty(PropertyName = "Show canceled message")]
+            public bool ShowCanceledMessage { get; set; }
         }
         #endregion
     }
